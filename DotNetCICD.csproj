@@ -21,5 +21,11 @@
   <ItemGroup>
     <Compile Remove="DotNetCICD.Tests/**/*.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="DotNetCICD.Tests/**/*.cs" />
+    <Content Remove="DotNetCICD.Tests/**" />
+    <None Remove="DotNetCICD.Tests/**" />
+    <EmbeddedResource Remove="DotNetCICD.Tests/**" />
+  </ItemGroup>
 
 </Project>
