@@ -14,14 +14,14 @@ pipeline {
         stage('Restore') {
             steps {
                 echo 'Restoring NuGet packages...'
-                bat 'dotnet restore MyApi.csproj'
+                bat 'dotnet restore DotNetCICD.csproj'
             }
         }
 
         stage('Build') {
             steps {
                 echo 'Building ASP.NET Core application...'
-                bat 'dotnet build MyApi.csproj --configuration Release --no-restore'
+                bat 'dotnet build DotNetCICD.csproj --configuration Release --no-restore'
             }
         }
     }
