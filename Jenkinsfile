@@ -55,7 +55,7 @@ stage('Docker Push') {
             )
         ]) {
             bat '''
-                echo %DOCKERHUB_TOKEN% | docker login -u %DOCKERHUB_USER% --password-stdin
+                echo %DOCKERHUB_TOKEN% | docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_TOKEN%
 
                 if errorlevel 1 exit /b 1
 
