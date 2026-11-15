@@ -38,13 +38,17 @@ stage('Docker Deploy') {
         echo 'Deploying Docker container...'
 
         bat '''
-            docker stop dotnetcicd-container 2>NUL || exit /b 0
-            docker rm dotnetcicd-container 2>NUL || exit /b 0
+            docker rm -f dotnetcicd-container 2>NUL
+            if errorlevel 1 echo No previous container found. Continuing...
 
             docker run -d ^
                 --name dotnetcicd-container ^
                 -p 5000:8080 ^
                 dotnetcicd:%BUILD_NUMBER%
+
+            if errorlevel 1 exit /b 1
+
+            docker ps
         '''
     }
 }
