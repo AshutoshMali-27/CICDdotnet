@@ -27,7 +27,18 @@ pipeline {
 stage('Docker Build') {
     steps {
         echo 'Building Docker image...'
-        bat 'docker build -t dotnetcicd:%BUILD_NUMBER% .'
+
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'DOCKERHUB_USER',
+                passwordVariable: 'DOCKERHUB_TOKEN'
+            )
+        ]) {
+            bat '''
+                docker build -t %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER% .
+            '''
+        }
     }
 }
 
@@ -45,13 +56,11 @@ stage('Docker Push') {
             bat '''
                 echo %DOCKERHUB_TOKEN% | docker login -u %DOCKERHUB_USER% --password-stdin
 
-                docker tag dotnetcicd:%BUILD_NUMBER% %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER%
-
-                docker tag dotnetcicd:%BUILD_NUMBER% %DOCKERHUB_USER%/dotnetcicd:latest
+                if errorlevel 1 exit /b 1
 
                 docker push %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER%
 
-                docker push %DOCKERHUB_USER%/dotnetcicd:latest
+                if errorlevel 1 exit /b 1
 
                 docker logout
             '''
@@ -66,19 +75,27 @@ stage('Docker Deploy') {
     steps {
         echo 'Deploying Docker container...'
 
-        bat '''
-            docker rm -f dotnetcicd-container 2>NUL
-            if errorlevel 1 echo No previous container found. Continuing...
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'DOCKERHUB_USER',
+                passwordVariable: 'DOCKERHUB_TOKEN'
+            )
+        ]) {
+            bat '''
+                docker rm -f dotnetcicd-container 2>NUL
+                if errorlevel 1 echo No previous container found. Continuing...
 
-            docker run -d ^
-                --name dotnetcicd-container ^
-                -p 5000:8080 ^
-                dotnetcicd:%BUILD_NUMBER%
+                docker run -d ^
+                    --name dotnetcicd-container ^
+                    -p 5000:8080 ^
+                    %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER%
 
-            if errorlevel 1 exit /b 1
+                if errorlevel 1 exit /b 1
 
-            docker ps
-        '''
+                docker ps
+            '''
+        }
     }
 }
     }
