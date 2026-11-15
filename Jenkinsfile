@@ -24,6 +24,12 @@ pipeline {
                 bat 'dotnet test DotNetCICD.Tests\\DotNetCICD.Tests.csproj --configuration Release --no-build --no-restore'
             }
         }
+stage('Docker Build') {
+    steps {
+        echo 'Building Docker image...'
+        bat 'docker build -t dotnetcicd:%BUILD_NUMBER% .'
+    }
+}
     }
 
     post {
