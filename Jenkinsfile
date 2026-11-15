@@ -24,6 +24,7 @@ pipeline {
                 bat 'dotnet test DotNetCICD.Tests\\DotNetCICD.Tests.csproj --configuration Release --no-build --no-restore'
             }
         }
+
 stage('Docker Build') {
     steps {
         echo 'Building Docker image...'
@@ -42,10 +43,9 @@ stage('Docker Build') {
     }
 }
 
-
 stage('Docker Push') {
     steps {
-        echo 'Logging into Docker Hub...'
+        echo 'Pushing Docker image to Docker Hub...'
 
         withCredentials([
             usernamePassword(
@@ -59,15 +59,15 @@ stage('Docker Push') {
 
                 if errorlevel 1 exit /b 1
 
-                docker push %DOCKERHUB_USER%/myapi:latest
+                docker push %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER%
+
+                if errorlevel 1 exit /b 1
+
+                docker logout
             '''
         }
     }
 }
-
-
-
-
 
 stage('Docker Deploy') {
     steps {
@@ -96,6 +96,7 @@ stage('Docker Deploy') {
         }
     }
 }
+
     }
 
 
