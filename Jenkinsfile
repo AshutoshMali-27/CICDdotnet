@@ -31,6 +31,35 @@ stage('Docker Build') {
     }
 }
 
+stage('Docker Push') {
+    steps {
+        echo 'Pushing Docker image to Docker Hub...'
+
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'DOCKERHUB_USER',
+                passwordVariable: 'DOCKERHUB_TOKEN'
+            )
+        ]) {
+            bat '''
+                echo %DOCKERHUB_TOKEN% | docker login -u %DOCKERHUB_USER% --password-stdin
+
+                docker tag dotnetcicd:%BUILD_NUMBER% %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER%
+
+                docker tag dotnetcicd:%BUILD_NUMBER% %DOCKERHUB_USER%/dotnetcicd:latest
+
+                docker push %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER%
+
+                docker push %DOCKERHUB_USER%/dotnetcicd:latest
+
+                docker logout
+            '''
+        }
+    }
+}
+
+
 
 
 stage('Docker Deploy') {
