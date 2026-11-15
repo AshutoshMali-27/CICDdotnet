@@ -4,24 +4,24 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                echo 'Checking out source code...'
-                checkout scm
-            }
-        }
-
         stage('Restore') {
             steps {
                 echo 'Restoring NuGet packages...'
-                bat 'dotnet restore DotNetCICD.csproj'
+                bat 'dotnet restore'
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Building ASP.NET Core application...'
-                bat 'dotnet build DotNetCICD.csproj --configuration Release --no-restore'
+                echo 'Building solution...'
+                bat 'dotnet build --configuration Release --no-restore'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running automated unit tests...'
+                bat 'dotnet test DotNetCICD.Tests\\DotNetCICD.Tests.csproj --configuration Release --no-build --no-restore'
             }
         }
     }
