@@ -32,6 +32,22 @@ stage('Docker Build') {
 }
     }
 
+stage('Docker Deploy') {
+    steps {
+        echo 'Deploying Docker container...'
+
+        bat '''
+            docker stop dotnetcicd-container 2>NUL || exit /b 0
+            docker rm dotnetcicd-container 2>NUL || exit /b 0
+
+            docker run -d ^
+                --name dotnetcicd-container ^
+                -p 5000:8080 ^
+                dotnetcicd:%BUILD_NUMBER%
+        '''
+    }
+}
+
     post {
         success {
             echo 'CI Pipeline completed successfully!'
