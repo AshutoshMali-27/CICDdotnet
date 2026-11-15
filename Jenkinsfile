@@ -42,9 +42,10 @@ stage('Docker Build') {
     }
 }
 
+
 stage('Docker Push') {
     steps {
-        echo 'Pushing Docker image to Docker Hub...'
+        echo 'Logging into Docker Hub...'
 
         withCredentials([
             usernamePassword(
@@ -58,15 +59,12 @@ stage('Docker Push') {
 
                 if errorlevel 1 exit /b 1
 
-                docker push %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER%
-
-                if errorlevel 1 exit /b 1
-
-                docker logout
+                docker push %DOCKERHUB_USER%/myapi:latest
             '''
         }
     }
 }
+
 
 
 
