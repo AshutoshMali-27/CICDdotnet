@@ -25,9 +25,10 @@ pipeline {
             }
         }
 
+
 stage('Docker Build') {
     steps {
-        echo 'Building Docker image...'
+        echo 'Building Docker image with version tags...'
 
         withCredentials([
             usernamePassword(
@@ -37,11 +38,14 @@ stage('Docker Build') {
             )
         ]) {
             bat '''
-                docker build -t %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER% .
+                docker build ^
+                    -t %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER% ^
+                    -t %DOCKERHUB_USER%/dotnetcicd:latest .
             '''
         }
     }
 }
+
 
 stage('Docker Push') {
     steps {
@@ -57,9 +61,14 @@ stage('Docker Push') {
             bat '''
                 echo %DOCKERHUB_TOKEN% | docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_TOKEN%
 
+              
                 if errorlevel 1 exit /b 1
 
                 docker push %DOCKERHUB_USER%/dotnetcicd:%BUILD_NUMBER%
+
+                if errorlevel 1 exit /b 1
+
+                docker push %DOCKERHUB_USER%/dotnetcicd:latest
 
                 if errorlevel 1 exit /b 1
 
@@ -96,6 +105,9 @@ stage('Docker Deploy') {
         }
     }
 }
+
+
+
 
     }
 
