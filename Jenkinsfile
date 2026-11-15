@@ -30,7 +30,8 @@ stage('Docker Build') {
         bat 'docker build -t dotnetcicd:%BUILD_NUMBER% .'
     }
 }
-    }
+
+
 
 stage('Docker Deploy') {
     steps {
@@ -47,6 +48,8 @@ stage('Docker Deploy') {
         '''
     }
 }
+    }
+
 
     post {
         success {
